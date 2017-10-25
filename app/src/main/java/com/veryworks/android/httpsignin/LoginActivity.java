@@ -29,10 +29,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.veryworks.android.httpsignin.model.Result;
+import com.veryworks.android.httpsignin.model.Sign;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -312,10 +314,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             }
             */
-            Map sign = new HashMap();
-            sign.put("id", mEmail);
-            sign.put("pw", mPassword);
-            String result = Remote.sendPost("http://192.168.0.82:8090/signin", sign);
+//            Map sign = new HashMap();
+//            sign.put("id", mEmail);
+//            sign.put("pw", mPassword);
+            Sign sign = new Sign();
+            sign.setId(mEmail);
+            sign.setPw(mPassword);
+            // <- json String 변환
+            String json = new Gson().toJson(sign);
+            String result = Remote.sendPost("http://192.168.0.82:8090/signin", json);
             Log.e("RESULT","======="+result);
             return result;
         }
@@ -324,7 +331,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         protected void onPostExecute(final String result) {
             mAuthTask = null;
             showProgress(false);
-            if ("OK".equals(result)) {
+            Result rst = new Gson().fromJson(result, Result.class);
+            if (rst.isOk()) {
                 Toast.makeText(LoginActivity.this, "Welcome!!!",Toast.LENGTH_LONG).show();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

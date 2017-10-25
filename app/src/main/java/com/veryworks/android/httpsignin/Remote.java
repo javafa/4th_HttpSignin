@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 
 /**
  * Created by pc on 10/16/2017.
@@ -15,31 +14,24 @@ import java.util.Map;
 
 public class Remote {
 
-    public static String sendPost(String address, Map postdata){
+    public static String sendPost(String address, String json){
         String result = "";
         try{
             URL url = new URL(address);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             // post 데이터를 전송 -----------
-            String temp = "";
-            for(Object key : postdata.keySet()){
-                temp += "&"; // 두번째 줄부터만 붙인다
-                temp += key+"="+postdata.get(key);
-            }
-            temp = temp.substring(1);
             con.setDoOutput(true);
             OutputStream os = con.getOutputStream();
-            os.write(temp.getBytes());
+            os.write(json.getBytes());
             os.flush();
             os.close();
             // -----------------------------
-
             if(con.getResponseCode() == HttpURLConnection.HTTP_OK){
                 // 여기서 부터는 파일에서 데이터를 가져오는 것과 동일
                 InputStreamReader isr = new InputStreamReader(con.getInputStream());
                 BufferedReader br = new BufferedReader(isr);
-                temp = "";
+                String temp = "";
                 while ((temp = br.readLine()) != null) {
                     result += temp;
                 }
